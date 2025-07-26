@@ -1,0 +1,36 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #0d0d0d;
+    color: #f7f7f7;
+    font-family: "Courier New", Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    text-align: center;
+}
+
+.ascii {
+    white-space: pre;
+    color: #ff77ff;
+    text-shadow:
+        0 0 5px #ff77ff,
+        0 0 10px #ff77ff,
+        0 0 20px #7700ff;
+    font-size: 0.9em;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.tagline {
+    font-size: 1.2em;
+    color: #77ffff;
+    text-shadow:
+        0 0 5px #77ffff,
+        0 0 10px #33ffee;
+}
