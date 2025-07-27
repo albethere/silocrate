@@ -82,6 +82,7 @@ main {
     border-radius: 8px;
     border: 1px solid #222;
     box-shadow: 0 0 20px #00ffaa55;
+    box-sizing: border-box;
 }
 
 @keyframes typeboot {
@@ -102,17 +103,20 @@ main {
     background-color: #0a0a0a;
     display: none;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     padding: 0;
     box-shadow: 0 0 20px #00ffaa55;
     border: 1px solid #222;
     border-radius: 8px;
+    box-sizing: border-box;
 }
 
 /* === XTerm.js Styling === */
 .xterm {
-    padding: 1rem;
+    width: 100%;
+    padding: 0;
     background-color: #0a0a0a !important;
+    box-sizing: border-box;
 }
 
 .xterm .xterm-viewport {
