@@ -201,17 +201,17 @@ function initTerminal() {
         term.writeln("Initiating network scan...");
         setTimeout(() => {
           let progress = 0;
-          const total = 24;
+          const total = 30;
+          const rainbow = [
+            "\x1b[31m",
+            "\x1b[33m",
+            "\x1b[32m",
+            "\x1b[36m",
+            "\x1b[34m",
+            "\x1b[35m",
+          ];
           function updateBar() {
             if (progress <= total) {
-              const rainbow = [
-                "\x1b[31m",
-                "\x1b[33m",
-                "\x1b[32m",
-                "\x1b[36m",
-                "\x1b[34m",
-                "\x1b[35m",
-              ];
               const color = rainbow[progress % rainbow.length];
               const bar =
                 color +
@@ -221,7 +221,7 @@ function initTerminal() {
                 "]\x1b[0m";
               term.write("\r" + bar);
               progress++;
-              setTimeout(updateBar, 60);
+              setTimeout(updateBar, 45);
             } else {
               term.write("\r\nScan complete.\n");
               Object.entries(network).forEach(([ip, data]) => {
@@ -307,7 +307,7 @@ function initTerminal() {
         } else if (fileName !== "flag.txt") {
           term.writeln("Only 'flag.txt' can be decrypted.");
         } else if (pw === network["10.13.37.99"].files[".pwkey"]) {
-          term.writeln("\x1b[1;32mflag{congratulations_you_won}\x1b[0m");
+          term.writeln("\x1b[1;32mflag{sys_h4ck3d_w3ll_d0n3}\x1b[0m");
           gameWon = true;
         } else {
           term.writeln("Decryption failed. Invalid password.");
@@ -317,7 +317,7 @@ function initTerminal() {
       case "claimprize":
         if (!argStr) {
           term.writeln("Usage: claimprize [flag]");
-        } else if (argStr === "flag{congratulations_you_won}") {
+        } else if (argStr === "flag{sys_h4ck3d_w3ll_d0n3}") {
           if (prizeClaimed) {
             term.writeln("You already claimed your prize.");
           } else {
@@ -358,7 +358,7 @@ function initTerminal() {
   }
 
   function fakeUname() {
-    const distros = ["Arch", "Void", "Debian", "Gentoo", "Slackware"];
+    const distros = ["Arch", "Void", "Debian", "Scorpion", "Mongoose"];
     return `${distros[Math.floor(Math.random() * distros.length)]} silocrate 6.9.66-l33t x86_64 GNU/Linux`;
   }
 }
