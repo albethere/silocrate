@@ -172,11 +172,12 @@ function initTerminal() {
         term.writeln("  crack [ip]        Attempt to brute-force a system");
         term.writeln("  connect [ip]      Connect to a target system");
         term.writeln("  disconnect        Disconnect from current host");
-        term.writeln("  ls                List files on the current system");
-        term.writeln("  ls -a             List all files (including hidden)");
+        term.writeln(
+          "  ls                List non-hidden files on the current system",
+        );
         term.writeln("  cat [file]        Read file content");
         term.writeln("  decrypt [file] [password]  Attempt to decrypt a file");
-        term.writeln("  claimprize [flag] Claim the final reward");
+        term.writeln("  claimprize [flag] Claim reward");
         break;
 
       case "whoami":
@@ -198,14 +199,38 @@ function initTerminal() {
         break;
 
       case "scan":
-        safeWrite("Scanning local network...");
-        setTimeout(() => {
-          Object.keys(network).forEach((ip) => {
-            const status = network[ip].cracked ? "open" : "filtered";
-            safeWrite(` - ${ip} (status: ${status})`);
-          });
-          prompt();
-        }, 600);
+        safeWrite("Initiating network scan...");
+
+        const progressFrames = [
+          "[==                  ] 10%",
+          "[====                ] 20%",
+          "[======              ] 30%",
+          "[========            ] 40%",
+          "[==========          ] 50%",
+          "[============        ] 60%",
+          "[==============      ] 70%",
+          "[================    ] 80%",
+          "[==================  ] 90%",
+          "[====================] 100%",
+          "Scan complete.\n",
+        ];
+
+        let frameIndex = 0;
+
+        function showProgress() {
+          if (frameIndex < progressFrames.length) {
+            safeWrite(progressFrames[frameIndex++]);
+            setTimeout(showProgress, 1000);
+          } else {
+            Object.entries(network).forEach(([ip, data]) => {
+              const status = data.cracked ? "open" : "filtered";
+              safeWrite(` - ${ip} (status: ${status})`);
+            });
+            prompt();
+          }
+        }
+
+        setTimeout(showProgress, 600);
         return;
 
       case "crack":
@@ -290,7 +315,7 @@ function initTerminal() {
       case "claimprize":
         if (!argStr) {
           term.writeln("Usage: claimprize [flag]");
-        } else if (argStr === "flag{sys_h4ck3d_w3ll_d0n3}") {
+        } else if (argStr === "sys_h4ck3d_w3ll_d0n3") {
           if (prizeClaimed) {
             term.writeln("You already claimed your prize.");
           } else {
@@ -300,7 +325,7 @@ function initTerminal() {
             term.writeln("\x1b[38;2;173;216;230mRainbows gleam...\x1b[0m");
             term.writeln("\x1b[38;2;255;182;193mYou feel weightless.\x1b[0m");
             term.writeln(
-              "\n\x1b[1;36m>>> Your reward awaits in another life <<<\x1b[0m",
+              "\n\x1b[1;36m>>> Your reward awaits in another life.  What a cop-out! <<<\x1b[0m",
             );
             prizeClaimed = true;
           }
