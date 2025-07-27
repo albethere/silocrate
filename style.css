@@ -99,7 +99,7 @@ main {
     height: 50vh;
     margin-top: 2rem;
     background: radial-gradient(circle at center, #0a0a0a 0%, #080808 100%);
-    display: none; /* Hidden until boot sequence finishes */
+    display: block; /* CHANGED from 'none' to 'block' */
     overflow: hidden;
     padding: 1rem;
 }
@@ -131,3 +131,4 @@ main {
         opacity: 0;
     }
 }
+Í
