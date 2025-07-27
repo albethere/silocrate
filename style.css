@@ -103,7 +103,7 @@ main {
     background: radial-gradient(circle at center, #0a0a0a 0%, #080808 100%);
     display: none; /* shown after boot */
     overflow-y: auto; /* enable vertical scroll */
-    overflow-x: hidden;
+    overflow-x: auto;
     padding: 1rem;
     box-shadow: 0 0 20px #00ffaa55;
     border: 1px solid #222;
