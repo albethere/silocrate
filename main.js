@@ -198,23 +198,22 @@ function initTerminal() {
         break;
 
       case "scan":
-        if (!sessionConnected || !currentTarget) {
-          safeWrite("Initiating network scan...");
-        }
-
+        safeWrite("Initiating network scan...");
         const totalSteps = 18;
         let currentStep = 0;
 
-        function showProgress() {
+        function updateScanProgress() {
           if (currentStep <= totalSteps) {
             const filled = "=".repeat(currentStep);
             const empty = " ".repeat(totalSteps - currentStep);
-            const bar = `[${filled}${empty}] ${((currentStep / totalSteps) * 100).toFixed(0)}%`;
-            safeWrite(bar);
+            term.write(
+              `\r[${filled}${empty}] ${((currentStep / totalSteps) * 100).toFixed(0)}%`,
+            );
             currentStep++;
-            setTimeout(showProgress, 1000); // 1 second delay
+            setTimeout(updateScanProgress, 1000);
           } else {
-            safeWrite("\nScan complete.\n");
+            term.write("\n");
+            safeWrite("Scan complete.\n");
             Object.entries(network).forEach(([ip, data]) => {
               const status = data.cracked ? "open" : "filtered";
               term.writeln(`  \x1b[36m${ip}\x1b[0m  (status: ${status})`);
@@ -223,8 +222,7 @@ function initTerminal() {
           }
         }
 
-        safeWrite("Scanning local network...");
-        setTimeout(showProgress, 1000); // initial delay
+        setTimeout(updateScanProgress, 800);
         return;
 
       case "crack":
