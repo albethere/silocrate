@@ -197,38 +197,37 @@ function initTerminal() {
         term.writeln("Disconnected from host.");
         break;
 
-        case "scan":
-          if (!sessionConnected || !currentTarget) {
-            safeWrite("Initiating network scan...");
+      case "scan":
+        safeWrite("Initiating network scan...");
+
+        const progressFrames = [
+          "[==                    ] 10%",
+          "[====                  ] 20%",
+          "[========              ] 40%",
+          "[============          ] 60%",
+          "[================      ] 80%",
+          "[====================  ] 90%",
+          "[======================] 100%",
+          "Scan complete.\n",
+        ];
+
+        let frameIndex = 0;
+
+        function showProgress() {
+          if (frameIndex < progressFrames.length) {
+            safeWrite(progressFrames[frameIndex++]);
+            setTimeout(showProgress, 1000);
+          } else {
+            Object.entries(network).forEach(([ip, data]) => {
+              const status = data.cracked ? "open" : "filtered";
+              safeWrite(` - ${ip} (status: ${status})`);
+            });
+            prompt();
           }
+        }
 
-          const progressFrames = [
-            "[=     ] 10%",
-            "[==    ] 30%",
-            "[====  ] 60%",
-            "[===== ] 90%",
-            "[======] 100%",
-            "Scan complete.\n",
-          ];
-
-          let frameIndex = 0;
-
-          function showProgress() {
-            if (frameIndex < progressFrames.length) {
-              safeWrite(progressFrames[frameIndex++]);
-              setTimeout(showProgress, 400);
-            } else {
-              Object.entries(network).forEach(([ip, data]) => {
-                const status = data.cracked ? "open" : "filtered";
-                safeWrite( - ${ip} (status: ${status}));
-              });
-              prompt();
-            }
-          }
-
-          safeWrite("Scanning local network...");
-          setTimeout(showProgress, 600);
-          return;
+        setTimeout(showProgress, 500);
+        return;
 
       case "crack":
         if (!argStr || !network[argStr]) {
