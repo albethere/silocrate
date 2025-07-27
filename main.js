@@ -198,41 +198,45 @@ function initTerminal() {
         break;
 
       case "scan":
-        term.writeln("Initiating network scan...");
-        setTimeout(() => {
-          let progress = 0;
-          const total = 30;
-          const rainbow = [
-            "\x1b[31m",
-            "\x1b[33m",
-            "\x1b[32m",
-            "\x1b[36m",
-            "\x1b[34m",
-            "\x1b[35m",
-          ];
-          function updateBar() {
-            if (progress <= total) {
-              const color = rainbow[progress % rainbow.length];
-              const bar =
-                color +
-                "[" +
-                "=".repeat(progress) +
-                " ".repeat(total - progress) +
-                "]\x1b[0m";
-              term.write("\r" + bar);
-              progress++;
-              setTimeout(updateBar, 45);
-            } else {
-              term.write("\r\nScan complete.\n");
-              Object.entries(network).forEach(([ip, data]) => {
-                const status = data.cracked ? "open" : "filtered";
-                term.writeln(` - ${ip} (status: ${status})`);
-              });
-              prompt();
-            }
+        if (!sessionConnected || !currentTarget) {
+          safeWrite("Initiating network scan...");
+        }
+
+        let scanProgress = 0;
+        const totalBar = 24;
+
+        function updateScanBar() {
+          if (scanProgress <= totalBar) {
+            const rainbow = [
+              "\x1b[31m",
+              "\x1b[33m",
+              "\x1b[32m",
+              "\x1b[36m",
+              "\x1b[34m",
+              "\x1b[35m",
+            ];
+            const color = rainbow[scanProgress % rainbow.length];
+            const bar =
+              color +
+              "[" +
+              "=".repeat(scanProgress) +
+              " ".repeat(totalBar - scanProgress) +
+              "]\x1b[0m";
+            term.write(`\r${bar}`);
+            scanProgress++;
+            setTimeout(updateScanBar, 50);
+          } else {
+            term.write("\n"); // finish the bar line
+            safeWrite("Scan complete.\n");
+            Object.entries(network).forEach(([ip, data]) => {
+              const status = data.cracked ? "open" : "filtered";
+              safeWrite(` - ${ip} (status: ${status})`);
+            });
+            prompt();
           }
-          updateBar();
-        }, 300);
+        }
+
+        setTimeout(updateScanBar, 300);
         return;
 
       case "crack":
