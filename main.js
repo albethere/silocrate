@@ -127,11 +127,11 @@ function handleCommand(raw) {
     case "help":
       term.writeln("\nAvailable commands:");
       term.writeln("  help            Show this help menu");
-      term.writeln("  whoami          Random hacker handle");
-      term.writeln("  uname           Fake system info");
+      term.writeln("  whoami          Show current user");
+      term.writeln("  uname           Show system info");
       term.writeln("  clear           Clear the screen");
-      term.writeln("  scan            Discover fake systems");
-      term.writeln("  crack [ip]      Attempt to break into a system");
+      term.writeln("  scan            Discover systems");
+      term.writeln("  crack [ip]      Attempt to brute-force a system");
       term.writeln("  connect [ip]    Connect to a target system");
       term.writeln("  ls              List files on the current system");
       term.writeln("  cat [file]      Read file content");
@@ -169,7 +169,7 @@ function handleCommand(raw) {
         term.writeln(`Running crack tool against ${argStr}...`);
         setTimeout(() => {
           network[argStr].cracked = true;
-          term.writeln(`Access granted. You may now 'connect ${argStr}'`);
+          term.writeln(`Crack successful. You may now 'connect ${argStr}'`);
           prompt();
         }, 1000);
         return;
