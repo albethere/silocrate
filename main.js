@@ -1,3 +1,6 @@
+// === SILOCRATE TERMINAL GAME ===
+// Full version with working disconnect, hidden dotfile logic, prize claim, fake flag trap, and true game-winning path
+
 const bootLines = [
   "Initializing network stack...",
   "Mounting quantum drives...",
@@ -63,11 +66,11 @@ function initTerminal() {
   banner.forEach((line) => safeWrite(line));
   prompt();
 
-  // Game state
   let inputBuffer = "";
   let sessionConnected = false;
   let currentTarget = null;
   let gameWon = false;
+  let prizeClaimed = false;
 
   const commandHistory = [];
   let historyIndex = -1;
@@ -76,26 +79,25 @@ function initTerminal() {
     "10.13.37.42": {
       cracked: true,
       files: {
-        "flag.txt": "flag{the_eels_are_listening}",
-        "secret.png": "[binary data]",
-        "readme.md": "Welcome to the honeypot.",
+        "flag.txt": "flag{this_is_a_decoy_flag}",
+        "notes.txt": "Nothing to see here... or is there?",
       },
     },
     "10.13.37.99": {
       cracked: false,
       unlocked: false,
       files: {
-        "vault.kdbx":
-          "[encrypted binary] xJ9z::meta_start::garbageData::pw=eel_binder99::authheader::junk",
+        "vault.kdbx": "[encrypted binary block] -- no readable content",
         "flag.txt": "Encrypted content - please decrypt with correct password.",
-        "notes.txt": "admin password is in the vault",
-        ".pwkey": "password = eel_binder99",
+        "notes.txt": "Try harder. Look deeper.",
+        ".pwkey": "eel_binder99",
       },
     },
     "172.16.0.1": {
       cracked: false,
+      unlocked: false,
       files: {
-        "flag.txt": "flag{you_should_not_be_here}",
+        "flag.txt": "Encrypted content - please decrypt with correct password.",
         syslog: "Too many failed logins from your IP.",
       },
     },
@@ -114,24 +116,24 @@ function initTerminal() {
         }
         inputBuffer = "";
         break;
-      case "\u0003": // Ctrl+C
+      case "\u0003":
         term.write("^C");
         inputBuffer = "";
         prompt();
         break;
-      case "\u007F": // Backspace
+      case "\u007F":
         if (inputBuffer.length > 0) {
           inputBuffer = inputBuffer.slice(0, -1);
           term.write("\b \b");
         }
         break;
-      case "\u001b[A": // ↑
+      case "\u001b[A":
         if (historyIndex > 0) {
           historyIndex--;
           replaceLine(commandHistory[historyIndex]);
         }
         break;
-      case "\u001b[B": // ↓
+      case "\u001b[B":
         if (historyIndex < commandHistory.length - 1) {
           historyIndex++;
           replaceLine(commandHistory[historyIndex]);
@@ -175,83 +177,40 @@ function initTerminal() {
         safeWrite("  scan              Discover systems");
         safeWrite("  crack [ip]        Attempt to brute-force a system");
         safeWrite("  connect [ip]      Connect to a target system");
+        safeWrite("  disconnect        Disconnect from current host");
         safeWrite("  ls                List files on the current system");
         safeWrite("  cat [file]        Read file content");
         safeWrite("  decrypt [file] [password]  Attempt to decrypt a file");
+        safeWrite("  claimprize [flag] Claim the final reward");
         break;
 
-      case "whoami":
-        safeWrite(randomHandle());
-        break;
-
-      case "uname":
-        safeWrite(fakeUname());
-        break;
-
-      case "clear":
-        term.clear();
-        break;
-
-      case "scan":
-        if (!sessionConnected || !currentTarget) {
-          safeWrite("Initiating network scan...");
-        }
-
-        const progressFrames = [
-          "[=     ] 10%",
-          "[==    ] 30%",
-          "[====  ] 60%",
-          "[===== ] 90%",
-          "[======] 100%",
-          "Scan complete.\n",
-        ];
-
-        let frameIndex = 0;
-
-        function showProgress() {
-          if (frameIndex < progressFrames.length) {
-            safeWrite(progressFrames[frameIndex++]);
-            setTimeout(showProgress, 400);
-          } else {
-            Object.entries(network).forEach(([ip, data]) => {
-              const status = data.cracked ? "open" : "filtered";
-              safeWrite(` - ${ip} (status: ${status})`);
-            });
-            prompt();
-          }
-        }
-
-        safeWrite("Scanning local network...");
-        setTimeout(showProgress, 600);
-        return;
-
-      case "crack":
-        if (!argStr || !network[argStr]) {
-          safeWrite("Usage: crack [IP] — target must exist.");
-        } else if (network[argStr].cracked) {
-          safeWrite(`${argStr} is already accessible.`);
+      case "disconnect":
+        if (!sessionConnected) {
+          safeWrite("Not connected to any host.");
         } else {
-          safeWrite(`Running crack tool against ${argStr}...`);
-          setTimeout(() => {
-            network[argStr].cracked = true;
-            safeWrite(`Crack successful. You may now 'connect ${argStr}'`);
-            prompt();
-          }, 1000);
-          return;
+          sessionConnected = false;
+          currentTarget = null;
+          safeWrite("Disconnected from host.");
         }
         break;
 
-      case "connect":
-        if (!argStr) {
-          safeWrite("Usage: connect [IP]");
-        } else if (!network[argStr]) {
-          safeWrite(`Unable to connect: host ${argStr} not found.`);
-        } else if (!network[argStr].cracked) {
-          safeWrite(`Connection refused: host ${argStr} is protected.`);
+      case "claimprize":
+        if (
+          argStr.trim() === "flag{the_eels_are_listening}" &&
+          gameWon &&
+          !prizeClaimed
+        ) {
+          prizeClaimed = true;
+          safeWrite("Flag accepted. Claiming prize...\n");
+          safeWrite("🌈✨🌥️ WELCOME TO THE CLOUD PRISM ✨🌈🌥️\n");
+          safeWrite("You've pierced the vapor.\n");
+          safeWrite("A cascade of rainbow bytes surrounds you.\n");
+          safeWrite("Digital cherry blossoms fall in slow motion.\n");
+          safeWrite("∞ Cloud elegance enabled. ∞\n");
+          safeWrite("[ Insert your cosmic payload here ]\n");
+          safeWrite("🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈\n");
         } else {
-          currentTarget = argStr;
-          sessionConnected = true;
-          safeWrite(`Connected to ${argStr}.`);
+          safeWrite("Invalid flag or prize already claimed.");
         }
         break;
 
@@ -259,10 +218,10 @@ function initTerminal() {
         if (!sessionConnected || !currentTarget) {
           safeWrite("Not connected to any host.");
         } else {
-          const files = Object.keys(network[currentTarget].files).filter(
+          const visible = Object.keys(network[currentTarget].files).filter(
             (f) => !f.startsWith("."),
           );
-          files.forEach((f) => safeWrite(f));
+          visible.forEach((f) => safeWrite(f));
         }
         break;
 
@@ -323,10 +282,21 @@ function initTerminal() {
         }
         break;
 
+      case "whoami":
+        safeWrite(randomHandle());
+        break;
+
+      case "uname":
+        safeWrite(fakeUname());
+        break;
+
+      case "clear":
+        term.clear();
+        break;
+
       default:
         safeWrite(`Command not found: ${base}`);
     }
-
     prompt();
   }
 
