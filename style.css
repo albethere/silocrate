@@ -3,28 +3,34 @@ body {
     padding: 0;
     background-color: #0d0d0d;
     color: #f7f7f7;
-    font-family: "Courier New", Courier, monospace;
+    font-family: Consolas, Menlo, Monaco, "Courier New", monospace;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 main {
     text-align: center;
+    padding: 1rem;
+    max-width: 100%;
 }
 
 .ascii {
+    font-size: 1em;
+    line-height: 1.1;
     white-space: pre;
+    overflow-x: auto;
+    max-width: 100vw;
     color: #ff77ff;
     text-shadow:
         0 0 5px #ff77ff,
         0 0 10px #ff77ff,
         0 0 20px #7700ff;
-    font-size: 0.9em;
-    line-height: 1.2;
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
 }
 
 .tagline {
@@ -33,4 +39,14 @@ main {
     text-shadow:
         0 0 5px #77ffff,
         0 0 10px #33ffee;
+    margin-bottom: 1rem;
+}
+
+.blurb {
+    font-size: 1em;
+    max-width: 600px;
+    margin: 0 auto;
+    color: #cccccc;
+    line-height: 1.5;
+    padding: 0 1rem;
 }
