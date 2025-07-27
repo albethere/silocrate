@@ -198,35 +198,14 @@ function initTerminal() {
         break;
 
       case "scan":
-        safeWrite("Initiating network scan...");
-
-        const progressFrames = [
-          "[==                    ] 10%",
-          "[====                  ] 20%",
-          "[========              ] 40%",
-          "[============          ] 60%",
-          "[================      ] 80%",
-          "[====================  ] 90%",
-          "[======================] 100%",
-          "Scan complete.\n",
-        ];
-
-        let frameIndex = 0;
-
-        function showProgress() {
-          if (frameIndex < progressFrames.length) {
-            safeWrite(progressFrames[frameIndex++]);
-            setTimeout(showProgress, 1000);
-          } else {
-            Object.entries(network).forEach(([ip, data]) => {
-              const status = data.cracked ? "open" : "filtered";
-              safeWrite(` - ${ip} (status: ${status})`);
-            });
-            prompt();
-          }
-        }
-
-        setTimeout(showProgress, 500);
+        safeWrite("Scanning local network...");
+        setTimeout(() => {
+          Object.keys(network).forEach((ip) => {
+            const status = network[ip].cracked ? "open" : "filtered";
+            safeWrite(` - ${ip} (status: ${status})`);
+          });
+          prompt();
+        }, 600);
         return;
 
       case "crack":
