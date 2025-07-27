@@ -1,5 +1,5 @@
 // === SILOCRATE TERMINAL GAME ===
-// Full version with rainbow progress scan bar and fixed logic
+// Full version with rainbow progress scan bar and full game logic
 
 const bootLines = [
   "Initializing network stack...",
@@ -53,17 +53,13 @@ function initTerminal() {
   });
   term.open(document.getElementById("terminal-container"));
 
-  function safeWrite(text) {
-    const sanitized = text
-      .replace(/\x1b/g, "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-    term.writeln(sanitized);
-  }
-
-  const banner = ["Welcome to SILOCRATE.", "Follow the white rabbit...", ""];
-  banner.forEach((line) => safeWrite(line));
+  const banner = [
+    "Welcome to SILOCRATE.",
+    "Follow the white rabbit...",
+    "",
+    "Type 'help' for available commands.",
+  ];
+  banner.forEach((line) => term.writeln(line));
   prompt();
 
   let inputBuffer = "";
@@ -85,7 +81,6 @@ function initTerminal() {
     },
     "10.13.37.99": {
       cracked: false,
-      unlocked: false,
       files: {
         "vault.kdbx": "[encrypted binary block] -- no readable content",
         "flag.txt": "Encrypted content - please decrypt with correct password.",
@@ -95,7 +90,6 @@ function initTerminal() {
     },
     "172.16.0.1": {
       cracked: false,
-      unlocked: false,
       files: {
         "flag.txt": "Encrypted content - please decrypt with correct password.",
         syslog: "Too many failed logins from your IP.",
@@ -168,51 +162,185 @@ function initTerminal() {
     const argStr = args.join(" ");
 
     switch (base.toLowerCase()) {
-      case "scan": {
-        if (!sessionConnected || !currentTarget) {
-          safeWrite("Initiating network scan...");
-        }
+      case "help":
+        term.writeln("\nAvailable commands:");
+        term.writeln("  help              Show this help menu");
+        term.writeln("  whoami            Show current user");
+        term.writeln("  uname             Show system info");
+        term.writeln("  clear             Clear the screen");
+        term.writeln("  scan              Discover systems");
+        term.writeln("  crack [ip]        Attempt to brute-force a system");
+        term.writeln("  connect [ip]      Connect to a target system");
+        term.writeln("  disconnect        Disconnect from current host");
+        term.writeln("  ls                List files on the current system");
+        term.writeln("  ls -a             List all files (including hidden)");
+        term.writeln("  cat [file]        Read file content");
+        term.writeln("  decrypt [file] [password]  Attempt to decrypt a file");
+        term.writeln("  claimprize [flag] Claim the final reward");
+        break;
 
-        safeWrite("Scanning local network...");
+      case "whoami":
+        term.writeln(randomHandle());
+        break;
 
-        let progress = 0;
-        const total = 24;
+      case "uname":
+        term.writeln(fakeUname());
+        break;
 
-        function updateBar() {
-          if (progress <= total) {
-            const rainbow = [
-              "\x1b[31m",
-              "\x1b[33m",
-              "\x1b[32m",
-              "\x1b[36m",
-              "\x1b[34m",
-              "\x1b[35m",
-            ];
-            const color = rainbow[progress % rainbow.length];
-            const bar =
-              color +
-              "[" +
-              "=".repeat(progress) +
-              " ".repeat(total - progress) +
-              "]\x1b[0m";
-            term.write("\r\n" + bar);
-            progress++;
-            setTimeout(updateBar, 80);
-          } else {
-            safeWrite("Scan complete.\n");
-            Object.entries(network).forEach(([ip, data]) => {
-              const status = data.cracked ? "open" : "filtered";
-              safeWrite(` - ${ip} (status: ${status})`);
-            });
+      case "clear":
+        term.clear();
+        break;
+
+      case "disconnect":
+        sessionConnected = false;
+        currentTarget = null;
+        term.writeln("Disconnected from host.");
+        break;
+
+      case "scan":
+        term.writeln("Initiating network scan...");
+        setTimeout(() => {
+          let progress = 0;
+          const total = 24;
+          function updateBar() {
+            if (progress <= total) {
+              const rainbow = [
+                "\x1b[31m",
+                "\x1b[33m",
+                "\x1b[32m",
+                "\x1b[36m",
+                "\x1b[34m",
+                "\x1b[35m",
+              ];
+              const color = rainbow[progress % rainbow.length];
+              const bar =
+                color +
+                "[" +
+                "=".repeat(progress) +
+                " ".repeat(total - progress) +
+                "]\x1b[0m";
+              term.write("\r" + bar);
+              progress++;
+              setTimeout(updateBar, 60);
+            } else {
+              term.write("\r\nScan complete.\n");
+              Object.entries(network).forEach(([ip, data]) => {
+                const status = data.cracked ? "open" : "filtered";
+                term.writeln(` - ${ip} (status: ${status})`);
+              });
+              prompt();
+            }
+          }
+          updateBar();
+        }, 300);
+        return;
+
+      case "crack":
+        if (!argStr || !network[argStr]) {
+          term.writeln("Usage: crack [IP] — target must exist.");
+        } else if (network[argStr].cracked) {
+          term.writeln(`${argStr} is already accessible.`);
+        } else {
+          term.writeln(`Running crack tool against ${argStr}...`);
+          setTimeout(() => {
+            network[argStr].cracked = true;
+            term.writeln(`Crack successful. You may now 'connect ${argStr}'`);
             prompt();
+          }, 1000);
+          return;
+        }
+        break;
+
+      case "connect":
+        if (!argStr) {
+          term.writeln("Usage: connect [IP]");
+        } else if (!network[argStr]) {
+          term.writeln(`Unable to connect: host ${argStr} not found.`);
+        } else if (!network[argStr].cracked) {
+          term.writeln(`Connection refused: host ${argStr} is protected.`);
+        } else {
+          currentTarget = argStr;
+          sessionConnected = true;
+          term.writeln(`Connected to ${argStr}. Use 'ls' to list files.`);
+        }
+        break;
+
+      case "ls":
+        if (!sessionConnected || !currentTarget) {
+          term.writeln("Not connected to any host.");
+        } else {
+          const showHidden = raw.includes("-a");
+          const files = Object.keys(network[currentTarget].files).filter((f) =>
+            showHidden ? true : !f.startsWith("."),
+          );
+          files.forEach((f) => term.writeln(f));
+        }
+        break;
+
+      case "cat":
+        if (!sessionConnected || !currentTarget) {
+          term.writeln("Not connected to any host.");
+        } else if (!argStr) {
+          term.writeln("Usage: cat [filename]");
+        } else {
+          const file = network[currentTarget].files[argStr];
+          if (file) {
+            if (argStr === "flag.txt" && !gameWon) {
+              term.writeln(
+                "flag.txt is encrypted. Use: decrypt flag.txt [password]",
+              );
+            } else {
+              term.writeln(file);
+            }
+          } else {
+            term.writeln(`cat: ${argStr}: No such file`);
           }
         }
+        break;
 
-        setTimeout(updateBar, 300);
-        return;
-      }
-      // all other commands continue...
+      case "decrypt":
+        const [fileName, pw] = args;
+        if (!sessionConnected || !currentTarget) {
+          term.writeln("Not connected to any host.");
+        } else if (!fileName || !pw) {
+          term.writeln("Usage: decrypt [file] [password]");
+        } else if (fileName !== "flag.txt") {
+          term.writeln("Only 'flag.txt' can be decrypted.");
+        } else if (pw === network["10.13.37.99"].files[".pwkey"]) {
+          term.writeln("\x1b[1;32mflag{congratulations_you_won}\x1b[0m");
+          gameWon = true;
+        } else {
+          term.writeln("Decryption failed. Invalid password.");
+        }
+        break;
+
+      case "claimprize":
+        if (!argStr) {
+          term.writeln("Usage: claimprize [flag]");
+        } else if (argStr === "flag{congratulations_you_won}") {
+          if (prizeClaimed) {
+            term.writeln("You already claimed your prize.");
+          } else {
+            term.writeln("\n\x1b[35m✨✨✨ CLAIMING PRIZE ✨✨✨\x1b[0m");
+            term.writeln("Welcome to the prize chamber.\n");
+            term.writeln("\x1b[38;2;255;105;180mClouds swirl...\x1b[0m");
+            term.writeln("\x1b[38;2;173;216;230mRainbows gleam...\x1b[0m");
+            term.writeln("\x1b[38;2;255;182;193mYou feel weightless.\x1b[0m");
+            term.writeln(
+              "\n\x1b[1;36m>>> Your reward awaits in another life <<<\x1b[0m",
+            );
+            prizeClaimed = true;
+          }
+        } else {
+          term.writeln("That flag does not grant access to the prize.");
+        }
+        break;
+
+      default:
+        term.writeln(`Command not found: ${base}`);
     }
+
+    prompt();
   }
 
   function randomHandle() {
