@@ -59,11 +59,7 @@ function initTerminal() {
     term.writeln(sanitized);
   }
 
-  const banner = [
-    "Welcome to \x1b[1mSILOCRATE\x1b[0m.",
-    "Follow the white rabbit...",
-    "",
-  ];
+  const banner = ["Welcome to SILOCRATE.", "Follow the white rabbit...", ""];
   banner.forEach((line) => safeWrite(line));
   prompt();
 
