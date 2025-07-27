@@ -1,6 +1,3 @@
-// === SILOCRATE TERMINAL GAME ===
-// Full version with rainbow progress scan bar and full game logic
-
 const bootLines = [
   "Initializing network stack...",
   "Mounting quantum drives...",
@@ -17,7 +14,7 @@ function typeBootLines(lines, index = 0) {
     setTimeout(() => {
       bootEl.style.display = "none";
       terminalEl.style.display = "block";
-      initTerminal();
+      initTerminal(); // launch game logic
     }, 1000);
     return;
   }
@@ -53,20 +50,28 @@ function initTerminal() {
   });
   term.open(document.getElementById("terminal-container"));
 
+  function safeWrite(text) {
+    const sanitized = text
+      .replace(/\x1b/g, "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    term.writeln(sanitized);
+  }
+
   const banner = [
-    "Welcome to SILOCRATE.",
-    "Follow the white rabbit...",
+    "Welcome to \x1b[1mSILOCRATE\x1b[0m.",
+    "Type \x1b[1;36mhelp\x1b[0m to list commands.",
     "",
-    "Type 'help' for available commands.",
   ];
-  banner.forEach((line) => term.writeln(line));
+  banner.forEach((line) => safeWrite(line));
   prompt();
 
+  // --- Game & Terminal State ---
   let inputBuffer = "";
   let sessionConnected = false;
   let currentTarget = null;
   let gameWon = false;
-  let prizeClaimed = false;
 
   const commandHistory = [];
   let historyIndex = -1;
@@ -75,28 +80,31 @@ function initTerminal() {
     "10.13.37.42": {
       cracked: true,
       files: {
-        "flag.txt": "flag{this_is_a_decoy_flag}",
-        "notes.txt": "Nothing to see here... or is there?",
+        "flag.txt": "flag{the_eels_are_listening}",
+        "secret.png": "[binary data]",
+        "readme.md": "Welcome to the honeypot.",
       },
     },
     "10.13.37.99": {
       cracked: false,
+      unlocked: false,
       files: {
-        "vault.kdbx": "[encrypted binary block] -- no readable content",
-        "flag.txt": "Encrypted content - please decrypt with correct password.",
-        "notes.txt": "Try harder. Look deeper.",
-        ".pwkey": "eel_binder99",
+        "vault.kdbx": "[encrypted binary] xJ9z::meta_start::garbageData::pw=eel_binder99::authheader::junk",
+        "flag.txt": "Encrypted content - please unlock with correct password.",
+        "notes.txt": "admin password is in the vault",
+        ".pwkey": "password = eel_binder99",
       },
     },
     "172.16.0.1": {
       cracked: false,
       files: {
-        "flag.txt": "Encrypted content - please decrypt with correct password.",
+        "flag.txt": "flag{you_should_not_be_here}",
         syslog: "Too many failed logins from your IP.",
       },
     },
   };
 
+  // --- Terminal Input Handling ---
   term.onData((key) => {
     switch (key) {
       case "\r":
@@ -110,24 +118,28 @@ function initTerminal() {
         }
         inputBuffer = "";
         break;
-      case "\u0003":
+
+      case "\u0003": // Ctrl+C
         term.write("^C");
         inputBuffer = "";
         prompt();
         break;
-      case "\u007F":
+
+      case "\u007F": // Backspace
         if (inputBuffer.length > 0) {
           inputBuffer = inputBuffer.slice(0, -1);
           term.write("\b \b");
         }
         break;
-      case "\u001b[A":
+
+      case "\u001b[A": // ↑
         if (historyIndex > 0) {
           historyIndex--;
           replaceLine(commandHistory[historyIndex]);
         }
         break;
-      case "\u001b[B":
+
+      case "\u001b[B": // ↓
         if (historyIndex < commandHistory.length - 1) {
           historyIndex++;
           replaceLine(commandHistory[historyIndex]);
@@ -136,6 +148,7 @@ function initTerminal() {
           replaceLine("");
         }
         break;
+
       default:
         if (key >= " " && key <= "~") {
           inputBuffer += key;
@@ -163,38 +176,30 @@ function initTerminal() {
 
     switch (base.toLowerCase()) {
       case "help":
-        term.writeln("\nAvailable commands:");
-        term.writeln("  help              Show this help menu");
-        term.writeln("  whoami            Show current user");
-        term.writeln("  uname             Show system info");
-        term.writeln("  clear             Clear the screen");
-        term.writeln("  scan              Discover systems");
-        term.writeln("  crack [ip]        Attempt to brute-force a system");
-        term.writeln("  connect [ip]      Connect to a target system");
-        term.writeln("  disconnect        Disconnect from current host");
-        term.writeln("  ls                List files on the current system");
-        term.writeln("  ls -a             List all files (including hidden)");
-        term.writeln("  cat [file]        Read file content");
-        term.writeln("  decrypt [file] [password]  Attempt to decrypt a file");
-        term.writeln("  claimprize [flag] Claim the final reward");
+        safeWrite("\nAvailable commands:");
+        safeWrite("  help              Show this help menu");
+        safeWrite("  whoami            Show current user");
+        safeWrite("  uname             Show system info");
+        safeWrite("  clear             Clear the screen");
+        safeWrite("  scan              Discover systems");
+        safeWrite("  crack [ip]        Attempt to brute-force a system");
+        safeWrite("  connect [ip]      Connect to a target system");
+        safeWrite("  ls                List files on the current system");
+        safeWrite("  ls -a             List all files, including hidden");
+        safeWrite("  cat [file]        Read file content");
+        safeWrite("  unlock [file] [password]  Attempt to decrypt a file");
         break;
 
       case "whoami":
-        term.writeln(randomHandle());
+        safeWrite(randomHandle());
         break;
 
       case "uname":
-        term.writeln(fakeUname());
+        safeWrite(fakeUname());
         break;
 
       case "clear":
         term.clear();
-        break;
-
-      case "disconnect":
-        sessionConnected = false;
-        currentTarget = null;
-        term.writeln("Disconnected from host.");
         break;
 
       case "scan":
@@ -210,14 +215,14 @@ function initTerminal() {
 
       case "crack":
         if (!argStr || !network[argStr]) {
-          term.writeln("Usage: crack [IP] — target must exist.");
+          safeWrite("Usage: crack [IP] — target must exist.");
         } else if (network[argStr].cracked) {
-          term.writeln(`${argStr} is already accessible.`);
+          safeWrite(`${argStr} is already accessible.`);
         } else {
-          term.writeln(`Running crack tool against ${argStr}...`);
+          safeWrite(`Running crack tool against ${argStr}...`);
           setTimeout(() => {
             network[argStr].cracked = true;
-            term.writeln(`Crack successful. You may now 'connect ${argStr}'`);
+            safeWrite(`Crack successful. You may now 'connect ${argStr}'`);
             prompt();
           }, 1000);
           return;
@@ -226,91 +231,79 @@ function initTerminal() {
 
       case "connect":
         if (!argStr) {
-          term.writeln("Usage: connect [IP]");
+          safeWrite("Usage: connect [IP]");
         } else if (!network[argStr]) {
-          term.writeln(`Unable to connect: host ${argStr} not found.`);
+          safeWrite(`Unable to connect: host ${argStr} not found.`);
         } else if (!network[argStr].cracked) {
-          term.writeln(`Connection refused: host ${argStr} is protected.`);
+          safeWrite(`Connection refused: host ${argStr} is protected.`);
         } else {
           currentTarget = argStr;
           sessionConnected = true;
-          term.writeln(`Connected to ${argStr}. Use 'ls' to list files.`);
+          safeWrite(`Connected to ${argStr}. Use 'ls' or 'ls -a' to list files.`);
         }
         break;
 
       case "ls":
         if (!sessionConnected || !currentTarget) {
-          term.writeln("Not connected to any host.");
+          safeWrite("Not connected to any host.");
         } else {
-          const showHidden = raw.includes("-a");
-          const files = Object.keys(network[currentTarget].files).filter((f) =>
-            showHidden ? true : !f.startsWith("."),
-          );
-          files.forEach((f) => term.writeln(f));
+          const files = Object.keys(network[currentTarget].files).filter((f) => !f.startsWith("."));
+          files.forEach((f) => safeWrite(f));
+        }
+        break;
+
+      case "ls -a":
+        if (!sessionConnected || !currentTarget) {
+          safeWrite("Not connected to any host.");
+        } else {
+          Object.keys(network[currentTarget].files).forEach((f) => safeWrite(f));
         }
         break;
 
       case "cat":
         if (!sessionConnected || !currentTarget) {
-          term.writeln("Not connected to any host.");
+          safeWrite("Not connected to any host.");
         } else if (!argStr) {
-          term.writeln("Usage: cat [filename]");
+          safeWrite("Usage: cat [filename]");
         } else {
-          const file = network[currentTarget].files[argStr];
+          const target = network[currentTarget];
+          const file = target.files[argStr];
           if (file) {
-            if (argStr === "flag.txt" && !gameWon) {
-              term.writeln(
-                "flag.txt is encrypted. Use: decrypt flag.txt [password]",
-              );
+            if (argStr === "flag.txt" && !target.unlocked) {
+              safeWrite("flag.txt is encrypted. Use: unlock flag.txt [password]");
             } else {
-              term.writeln(file);
+              safeWrite(file);
+              if (argStr === "flag.txt" && !gameWon && target.unlocked) {
+                term.writeln("\n\x1b[1;32m>>> FLAG CAPTURED <<<\x1b[0m");
+                gameWon = true;
+              }
             }
           } else {
-            term.writeln(`cat: ${argStr}: No such file`);
+            safeWrite(`cat: ${argStr}: No such file`);
           }
         }
         break;
 
-      case "decrypt":
-        const [fileName, pw] = args;
+      case "unlock":
         if (!sessionConnected || !currentTarget) {
-          term.writeln("Not connected to any host.");
-        } else if (!fileName || !pw) {
-          term.writeln("Usage: decrypt [file] [password]");
-        } else if (fileName !== "flag.txt") {
-          term.writeln("Only 'flag.txt' can be decrypted.");
-        } else if (pw === network["10.13.37.99"].files[".pwkey"]) {
-          term.writeln("\x1b[1;32mflag{sys_h4ck3d_w3ll_d0n3}\x1b[0m");
-          gameWon = true;
+          safeWrite("Not connected to any host.");
+        } else if (!argStr) {
+          safeWrite("Usage: unlock [filename] [password]");
         } else {
-          term.writeln("Decryption failed. Invalid password.");
-        }
-        break;
-
-      case "claimprize":
-        if (!argStr) {
-          term.writeln("Usage: claimprize [flag]");
-        } else if (argStr === "flag{sys_h4ck3d_w3ll_d0n3}") {
-          if (prizeClaimed) {
-            term.writeln("You already claimed your prize.");
+          const [fileArg, password] = argStr.split(" ");
+          if (fileArg !== "flag.txt") {
+            safeWrite("Only flag.txt can be unlocked.");
+          } else if (password === "eel_binder99" && currentTarget === "10.13.37.99") {
+            network[currentTarget].unlocked = true;
+            safeWrite("flag.txt unlocked. You may now cat flag.txt.");
           } else {
-            term.writeln("\n\x1b[35m✨✨✨ CLAIMING PRIZE ✨✨✨\x1b[0m");
-            term.writeln("Welcome to the prize chamber.\n");
-            term.writeln("\x1b[38;2;255;105;180mClouds swirl...\x1b[0m");
-            term.writeln("\x1b[38;2;173;216;230mRainbows gleam...\x1b[0m");
-            term.writeln("\x1b[38;2;255;182;193mYou feel weightless.\x1b[0m");
-            term.writeln(
-              "\n\x1b[1;36m>>> Your reward awaits in another life <<<\x1b[0m",
-            );
-            prizeClaimed = true;
+            safeWrite("Unlock failed. Incorrect password.");
           }
-        } else {
-          term.writeln("That flag does not grant access to the prize.");
         }
         break;
 
       default:
-        term.writeln(`Command not found: ${base}`);
+        safeWrite(`Command not found: ${base}`);
     }
 
     prompt();
@@ -331,7 +324,7 @@ function initTerminal() {
   }
 
   function fakeUname() {
-    const distros = ["Arch", "Void", "Debian", "Scorpion", "Mongoose"];
+    const distros = ["Arch", "Void", "Debian", "Gentoo", "Slackware"];
     return `${distros[Math.floor(Math.random() * distros.length)]} silocrate 6.9.66-l33t x86_64 GNU/Linux`;
   }
 }
