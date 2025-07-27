@@ -14,7 +14,7 @@ function typeBootLines(lines, index = 0) {
     setTimeout(() => {
       bootEl.style.display = "none";
       terminalEl.style.display = "block";
-      initTerminal(); // launch game logic
+      initTerminal();
     }, 1000);
     return;
   }
@@ -63,7 +63,7 @@ function initTerminal() {
   banner.forEach((line) => safeWrite(line));
   prompt();
 
-  // --- Game & Terminal State ---
+  // Game state
   let inputBuffer = "";
   let sessionConnected = false;
   let currentTarget = null;
@@ -87,7 +87,7 @@ function initTerminal() {
       files: {
         "vault.kdbx":
           "[encrypted binary] xJ9z::meta_start::garbageData::pw=eel_binder99::authheader::junk",
-        "flag.txt": "Encrypted content - please unlock with correct password.",
+        "flag.txt": "Encrypted content - please decrypt with correct password.",
         "notes.txt": "admin password is in the vault",
         ".pwkey": "password = eel_binder99",
       },
@@ -101,7 +101,6 @@ function initTerminal() {
     },
   };
 
-  // --- Terminal Input Handling ---
   term.onData((key) => {
     switch (key) {
       case "\r":
@@ -115,27 +114,23 @@ function initTerminal() {
         }
         inputBuffer = "";
         break;
-
       case "\u0003": // Ctrl+C
         term.write("^C");
         inputBuffer = "";
         prompt();
         break;
-
       case "\u007F": // Backspace
         if (inputBuffer.length > 0) {
           inputBuffer = inputBuffer.slice(0, -1);
           term.write("\b \b");
         }
         break;
-
       case "\u001b[A": // ↑
         if (historyIndex > 0) {
           historyIndex--;
           replaceLine(commandHistory[historyIndex]);
         }
         break;
-
       case "\u001b[B": // ↓
         if (historyIndex < commandHistory.length - 1) {
           historyIndex++;
@@ -145,7 +140,6 @@ function initTerminal() {
           replaceLine("");
         }
         break;
-
       default:
         if (key >= " " && key <= "~") {
           inputBuffer += key;
@@ -182,9 +176,8 @@ function initTerminal() {
         safeWrite("  crack [ip]        Attempt to brute-force a system");
         safeWrite("  connect [ip]      Connect to a target system");
         safeWrite("  ls                List files on the current system");
-        safeWrite("  ls -a             List all files, including hidden");
         safeWrite("  cat [file]        Read file content");
-        safeWrite("  unlock [file] [password]  Attempt to decrypt a file");
+        safeWrite("  decrypt [file] [password]  Attempt to decrypt a file");
         break;
 
       case "whoami":
@@ -236,9 +229,7 @@ function initTerminal() {
         } else {
           currentTarget = argStr;
           sessionConnected = true;
-          safeWrite(
-            `Connected to ${argStr}. Use 'ls' or 'ls -a' to list files.`,
-          );
+          safeWrite(`Connected to ${argStr}.`);
         }
         break;
 
@@ -274,7 +265,7 @@ function initTerminal() {
           if (file) {
             if (argStr === "flag.txt" && !target.unlocked) {
               safeWrite(
-                "flag.txt is encrypted. Use: unlock flag.txt [password]",
+                "flag.txt is encrypted. Use: decrypt flag.txt [password]",
               );
             } else {
               safeWrite(file);
@@ -289,23 +280,23 @@ function initTerminal() {
         }
         break;
 
-      case "unlock":
+      case "decrypt":
         if (!sessionConnected || !currentTarget) {
           safeWrite("Not connected to any host.");
         } else if (!argStr) {
-          safeWrite("Usage: unlock [filename] [password]");
+          safeWrite("Usage: decrypt [filename] [password]");
         } else {
           const [fileArg, password] = argStr.split(" ");
           if (fileArg !== "flag.txt") {
-            safeWrite("Only flag.txt can be unlocked.");
+            safeWrite("Only flag.txt can be decrypted.");
           } else if (
             password === "eel_binder99" &&
             currentTarget === "10.13.37.99"
           ) {
             network[currentTarget].unlocked = true;
-            safeWrite("flag.txt unlocked. You may now cat flag.txt.");
+            safeWrite("Decryption complete. You may now cat flag.txt.");
           } else {
-            safeWrite("Unlock failed. Incorrect password.");
+            safeWrite("Decryption failed. Incorrect password.");
           }
         }
         break;
