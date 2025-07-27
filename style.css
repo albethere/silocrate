@@ -25,18 +25,19 @@ main {
 
 .ascii {
     font-family: Menlo, Monaco, "Courier New", monospace;
-    font-size: 1.1rem;
-    line-height: 1.05;
+    font-size: 1rem;
+    line-height: 1.2;
     color: #ff77ff;
     text-shadow:
         0 0 5px #ff77ff,
         0 0 10px #ff77ff,
         0 0 20px #7700ff;
     white-space: pre;
+    overflow-x: auto;
+    max-width: 100%;
+    padding: 0.5rem;
     margin: 0 auto 1.5rem auto;
-    width: fit-content;
-    min-width: 60ch;
-    padding: 0 1rem;
+    display: block;
 }
 
 .tagline {
