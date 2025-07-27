@@ -6,12 +6,6 @@ body {
     background-color: #0a0a0a;
     color: #f7f7f7;
     font-family: Menlo, Monaco, "Courier New", monospace;
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
 }
 
 /* === Main Content Section === */
@@ -81,6 +75,13 @@ main {
     animation: typeboot 3s steps(60, end) forwards;
     overflow: hidden;
     border-right: 0.15em solid #00ffaa;
+    text-align: left;
+    max-width: 1000px;
+    margin: 2rem auto;
+    background: #0a0a0a;
+    border-radius: 8px;
+    border: 1px solid #222;
+    box-shadow: 0 0 20px #00ffaa55;
 }
 
 @keyframes typeboot {
@@ -95,14 +96,17 @@ main {
 /* === Terminal Container === */
 #terminal-container {
     text-align: left;
-    flex-grow: 1;
     width: 100%;
+    max-width: 1000px;
     height: 50vh;
-    margin-top: 2rem;
+    margin: 2rem auto 4rem auto;
     background: radial-gradient(circle at center, #0a0a0a 0%, #080808 100%);
-    display: block; /* CHANGED from 'none' to 'block' */
+    display: none; /* shown after boot */
     overflow: hidden;
     padding: 1rem;
+    box-shadow: 0 0 20px #00ffaa55;
+    border: 1px solid #222;
+    border-radius: 8px;
 }
 
 /* === XTerm.js Styling === */
@@ -132,4 +136,3 @@ main {
         opacity: 0;
     }
 }
-Í
