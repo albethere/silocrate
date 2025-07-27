@@ -1,21 +1,25 @@
+/* === General Reset & Layout === */
+html,
 body {
     margin: 0;
     padding: 0;
-    background-color: #0d0d0d;
+    background-color: #0a0a0a;
     color: #f7f7f7;
     font-family: Menlo, Monaco, "Courier New", monospace;
+    height: 100%;
+    overflow: hidden;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
     flex-direction: column;
-    overflow-x: hidden;
+    align-items: center;
+    justify-content: flex-start;
 }
 
+/* === Main Content Section === */
 main {
     text-align: center;
     padding: 1rem;
     width: 100%;
+    z-index: 10;
 }
 
 .ascii-container {
@@ -23,20 +27,29 @@ main {
     justify-content: center;
     overflow-x: auto;
     padding: 0 1rem;
-}
-
-.ascii {
-    font-family: Menlo, Monaco, "Courier New", monospace;
-    font-size: 1rem;
-    line-height: 1.2;
+    white-space: pre;
+    font-size: 1.1rem;
     color: #ff77ff;
     text-shadow:
         0 0 5px #ff77ff,
-        0 0 10px #ff77ff,
-        0 0 20px #7700ff;
-    white-space: pre;
-    padding: 0.5rem;
-    text-align: left;
+        0 0 10px #ff44ff,
+        0 0 20px #cc00cc;
+    animation: glowFade 3s ease-in-out infinite alternate;
+}
+
+@keyframes glowFade {
+    from {
+        text-shadow:
+            0 0 5px #ff77ff,
+            0 0 10px #ff44ff,
+            0 0 20px #cc00cc;
+    }
+    to {
+        text-shadow:
+            0 0 2px #ff99ff,
+            0 0 5px #ff66ff,
+            0 0 10px #990099;
+    }
 }
 
 .tagline {
@@ -55,4 +68,66 @@ main {
     color: #cccccc;
     line-height: 1.5;
     padding: 0 1rem;
+}
+
+/* === Boot Animation === */
+.boot-sequence {
+    font-family: monospace;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #00ffaa;
+    padding: 1rem;
+    white-space: pre-wrap;
+    animation: typeboot 3s steps(60, end) forwards;
+    overflow: hidden;
+    border-right: 0.15em solid #00ffaa;
+}
+
+@keyframes typeboot {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+/* === Terminal Container === */
+#terminal-container {
+    flex-grow: 1;
+    width: 100%;
+    height: 50vh;
+    margin-top: 2rem;
+    background: radial-gradient(circle at center, #0a0a0a 0%, #080808 100%);
+    display: none; /* Hidden until boot sequence finishes */
+    overflow: hidden;
+    padding: 1rem;
+}
+
+/* === XTerm.js Styling === */
+.xterm {
+    padding: 10px;
+}
+
+.xterm .xterm-viewport {
+    scrollbar-width: none;
+}
+
+.xterm .xterm-cursor-block {
+    background-color: #00ffff !important;
+    animation: blink 1.2s step-end infinite;
+}
+
+.xterm .xterm-selection {
+    background: rgba(255, 20, 147, 0.5);
+}
+
+@keyframes blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
 }

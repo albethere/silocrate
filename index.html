@@ -4,6 +4,15 @@
         <meta charset="UTF-8" />
         <title>SILOCRATE</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- xterm.js CDN -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.min.js"></script>
+
+        <!-- Your CSS -->
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
@@ -28,5 +37,11 @@
                 No crust left unburnt. No sender left unscrubbed.
             </p>
         </main>
+
+        <!-- Terminal container full width/height below content -->
+        <div id="terminal-container"></div>
+
+        <!-- JS Logic -->
+        <script src="main.js"></script>
     </body>
 </html>
