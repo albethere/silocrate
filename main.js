@@ -50,12 +50,17 @@ function initTerminal() {
   });
   term.open(document.getElementById("terminal-container"));
 
-  const banner = [
-    "Welcome to \x1b[1mSILOCRATE\x1b[0m.",
-    "Type \x1b[1;36mhelp\x1b[0m to list commands.",
-    "",
-  ];
-  banner.forEach((line) => term.writeln(line));
+  function safeWrite(text) {
+    const sanitized = text
+      .replace(/\x1b/g, "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    term.writeln(sanitized);
+  }
+
+  const banner = ["Welcome to \x1b[1mSILOCRATE\x1b[0m.", ""];
+  banner.forEach((line) => safeWrite(line));
   prompt();
 
   // --- Game & Terminal State ---
@@ -78,10 +83,13 @@ function initTerminal() {
     },
     "10.13.37.99": {
       cracked: false,
+      unlocked: false,
       files: {
-        "vault.kdbx": "[encrypted blob]",
-        "flag.txt": "flag{winners_never_quit}",
+        "vault.kdbx":
+          "[encrypted binary] xJ9z::meta_start::garbageData::pw=eel_binder99::authheader::junk",
+        "flag.txt": "Encrypted content - please unlock with correct password.",
         "notes.txt": "admin password is in the vault",
+        ".pwkey": "password = eel_binder99",
       },
     },
     "172.16.0.1": {
@@ -165,24 +173,26 @@ function initTerminal() {
 
     switch (base.toLowerCase()) {
       case "help":
-        term.writeln("\nAvailable commands:");
-        term.writeln("  help            Show this help menu");
-        term.writeln("  whoami          Show current user");
-        term.writeln("  uname           Show system info");
-        term.writeln("  clear           Clear the screen");
-        term.writeln("  scan            Discover systems");
-        term.writeln("  crack [ip]      Attempt to brute-force a system");
-        term.writeln("  connect [ip]    Connect to a target system");
-        term.writeln("  ls              List files on the current system");
-        term.writeln("  cat [file]      Read file content");
+        safeWrite("\nAvailable commands:");
+        safeWrite("  help              Show this help menu");
+        safeWrite("  whoami            Show current user");
+        safeWrite("  uname             Show system info");
+        safeWrite("  clear             Clear the screen");
+        safeWrite("  scan              Discover systems");
+        safeWrite("  crack [ip]        Attempt to brute-force a system");
+        safeWrite("  connect [ip]      Connect to a target system");
+        safeWrite("  ls                List files on the current system");
+        safeWrite("  ls -a             List all files, including hidden");
+        safeWrite("  cat [file]        Read file content");
+        safeWrite("  unlock [file] [password]  Attempt to decrypt a file");
         break;
 
       case "whoami":
-        term.writeln(randomHandle());
+        safeWrite(randomHandle());
         break;
 
       case "uname":
-        term.writeln(fakeUname());
+        safeWrite(fakeUname());
         break;
 
       case "clear":
@@ -190,11 +200,11 @@ function initTerminal() {
         break;
 
       case "scan":
-        term.writeln("Scanning local network...");
+        safeWrite("Scanning local network...");
         setTimeout(() => {
           Object.keys(network).forEach((ip) => {
             const status = network[ip].cracked ? "open" : "filtered";
-            term.writeln(` - ${ip} (status: ${status})`);
+            safeWrite(` - ${ip} (status: ${status})`);
           });
           prompt();
         }, 600);
@@ -202,14 +212,14 @@ function initTerminal() {
 
       case "crack":
         if (!argStr || !network[argStr]) {
-          term.writeln("Usage: crack [IP] — target must exist.");
+          safeWrite("Usage: crack [IP] — target must exist.");
         } else if (network[argStr].cracked) {
-          term.writeln(`${argStr} is already accessible.`);
+          safeWrite(`${argStr} is already accessible.`);
         } else {
-          term.writeln(`Running crack tool against ${argStr}...`);
+          safeWrite(`Running crack tool against ${argStr}...`);
           setTimeout(() => {
             network[argStr].cracked = true;
-            term.writeln(`Crack successful. You may now 'connect ${argStr}'`);
+            safeWrite(`Crack successful. You may now 'connect ${argStr}'`);
             prompt();
           }, 1000);
           return;
@@ -218,49 +228,90 @@ function initTerminal() {
 
       case "connect":
         if (!argStr) {
-          term.writeln("Usage: connect [IP]");
+          safeWrite("Usage: connect [IP]");
         } else if (!network[argStr]) {
-          term.writeln(`Unable to connect: host ${argStr} not found.`);
+          safeWrite(`Unable to connect: host ${argStr} not found.`);
         } else if (!network[argStr].cracked) {
-          term.writeln(`Connection refused: host ${argStr} is protected.`);
+          safeWrite(`Connection refused: host ${argStr} is protected.`);
         } else {
           currentTarget = argStr;
           sessionConnected = true;
-          term.writeln(`Connected to ${argStr}. Use 'ls' to list files.`);
+          safeWrite(
+            `Connected to ${argStr}. Use 'ls' or 'ls -a' to list files.`,
+          );
         }
         break;
 
       case "ls":
         if (!sessionConnected || !currentTarget) {
-          term.writeln("Not connected to any host.");
+          safeWrite("Not connected to any host.");
+        } else {
+          const files = Object.keys(network[currentTarget].files).filter(
+            (f) => !f.startsWith("."),
+          );
+          files.forEach((f) => safeWrite(f));
+        }
+        break;
+
+      case "ls -a":
+        if (!sessionConnected || !currentTarget) {
+          safeWrite("Not connected to any host.");
         } else {
           Object.keys(network[currentTarget].files).forEach((f) =>
-            term.writeln(f),
+            safeWrite(f),
           );
         }
         break;
 
       case "cat":
         if (!sessionConnected || !currentTarget) {
-          term.writeln("Not connected to any host.");
+          safeWrite("Not connected to any host.");
         } else if (!argStr) {
-          term.writeln("Usage: cat [filename]");
+          safeWrite("Usage: cat [filename]");
         } else {
-          const file = network[currentTarget].files[argStr];
+          const target = network[currentTarget];
+          const file = target.files[argStr];
           if (file) {
-            term.writeln(file);
-            if (argStr === "flag.txt" && !gameWon) {
-              term.writeln("\n\x1b[1;32m>>> FLAG CAPTURED <<<\x1b[0m");
-              gameWon = true;
+            if (argStr === "flag.txt" && !target.unlocked) {
+              safeWrite(
+                "flag.txt is encrypted. Use: unlock flag.txt [password]",
+              );
+            } else {
+              safeWrite(file);
+              if (argStr === "flag.txt" && !gameWon && target.unlocked) {
+                term.writeln("\n\x1b[1;32m>>> FLAG CAPTURED <<<\x1b[0m");
+                gameWon = true;
+              }
             }
           } else {
-            term.writeln(`cat: ${argStr}: No such file`);
+            safeWrite(`cat: ${argStr}: No such file`);
+          }
+        }
+        break;
+
+      case "unlock":
+        if (!sessionConnected || !currentTarget) {
+          safeWrite("Not connected to any host.");
+        } else if (!argStr) {
+          safeWrite("Usage: unlock [filename] [password]");
+        } else {
+          const [fileArg, password] = argStr.split(" ");
+          if (fileArg !== "flag.txt") {
+            safeWrite("Only flag.txt can be unlocked.");
+          } else if (
+            password === "eel_binder99" &&
+            currentTarget === "10.13.37.99"
+          ) {
+            network[currentTarget].unlocked = true;
+            safeWrite("flag.txt unlocked. You may now cat flag.txt.");
+          } else {
+            safeWrite("Unlock failed. Incorrect password.");
           }
         }
         break;
 
       default:
-        term.writeln(`Command not found: ${base}`);
+        safeWrite(`Command not found: ${base}`);
     }
 
     prompt();
