@@ -76,9 +76,9 @@ main {
     overflow: hidden;
     border-right: 0.15em solid #00ffaa;
     text-align: left;
-    max-width: 1000px;
+    max-width: 900px;
     margin: 2rem auto;
-    background: #0a0a0a;
+    background-color: #0a0a0a;
     border-radius: 8px;
     border: 1px solid #222;
     box-shadow: 0 0 20px #00ffaa55;
@@ -97,14 +97,13 @@ main {
 #terminal-container {
     text-align: left;
     width: 100%;
-    max-width: 1000px;
-    height: 50vh;
+    max-width: 900px;
     margin: 2rem auto 4rem auto;
-    background: radial-gradient(circle at center, #0a0a0a 0%, #080808 100%);
-    display: none; /* shown after boot */
-    overflow-y: auto; /* enable vertical scroll */
-    overflow-x: auto;
-    padding: 1rem;
+    background-color: #0a0a0a;
+    display: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
     box-shadow: 0 0 20px #00ffaa55;
     border: 1px solid #222;
     border-radius: 8px;
@@ -112,7 +111,8 @@ main {
 
 /* === XTerm.js Styling === */
 .xterm {
-    padding: 10px;
+    padding: 1rem;
+    background-color: #0a0a0a !important;
 }
 
 .xterm .xterm-viewport {
