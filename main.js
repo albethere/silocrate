@@ -198,35 +198,33 @@ function initTerminal() {
         break;
 
       case "scan":
-        safeWrite("Initiating network scan...");
-        let scanBarLine = term.buffer.active.cursorY + 1;
-        term.write("\n"); // Reserve line for bar
-        let progress = 0;
-        const barLength = 30;
+        safeWrite("Scanning local network...");
+        let scanProgress = 0;
+        const scanBarLength = 30;
 
-        const scanInterval = setInterval(() => {
-          const filled = "=".repeat(progress);
-          const empty = " ".repeat(barLength - progress);
-          const bar = `[${filled}${empty}]`;
+        function drawProgressBar() {
+          const filled = "=".repeat(scanProgress);
+          const empty = " ".repeat(scanBarLength - scanProgress);
+          // overwrite current line
+          term.write(`\r[${filled}${empty}]`);
 
-          // Move cursor up to scan bar line and overwrite
-          term.write(`\x1b[${term.buffer.active.cursorY - scanBarLine + 1}A`);
-          term.write(`\r${bar}`);
-          term.write(`\x1b[${term.buffer.active.cursorY - scanBarLine + 1}B`);
-
-          progress++;
-
-          if (progress > barLength) {
-            clearInterval(scanInterval);
-            term.writeln(""); // Move past progress bar
+          if (scanProgress < scanBarLength) {
+            scanProgress++;
+            setTimeout(drawProgressBar, 50);
+          } else {
+            term.write("\n\n");
             safeWrite("Scan complete.\n");
+
             Object.entries(network).forEach(([ip, data]) => {
               const status = data.cracked ? "open" : "filtered";
-              safeWrite(` - ${ip} (status: ${status})`);
+              term.writeln(`  \x1b[36m${ip}\x1b[0m  (status: ${status})`);
             });
+
             prompt();
           }
-        }, 50);
+        }
+
+        setTimeout(drawProgressBar, 300);
         return;
 
       case "crack":
