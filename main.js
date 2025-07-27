@@ -197,33 +197,38 @@ function initTerminal() {
         term.writeln("Disconnected from host.");
         break;
 
-      case "scan":
-        safeWrite("Initiating network scan...");
-        const totalSteps = 18;
-        let currentStep = 0;
-
-        function updateScanProgress() {
-          if (currentStep <= totalSteps) {
-            const filled = "=".repeat(currentStep);
-            const empty = " ".repeat(totalSteps - currentStep);
-            term.write(
-              `\r[${filled}${empty}] ${((currentStep / totalSteps) * 100).toFixed(0)}%`,
-            );
-            currentStep++;
-            setTimeout(updateScanProgress, 1000);
-          } else {
-            term.write("\n");
-            safeWrite("Scan complete.\n");
-            Object.entries(network).forEach(([ip, data]) => {
-              const status = data.cracked ? "open" : "filtered";
-              term.writeln(`  \x1b[36m${ip}\x1b[0m  (status: ${status})`);
-            });
-            prompt();
+        case "scan":
+          if (!sessionConnected || !currentTarget) {
+            safeWrite("Initiating network scan...");
           }
-        }
 
-        setTimeout(updateScanProgress, 800);
-        return;
+          const progressFrames = [
+            "[=     ] 10%",
+            "[==    ] 30%",
+            "[====  ] 60%",
+            "[===== ] 90%",
+            "[======] 100%",
+            "Scan complete.\n",
+          ];
+
+          let frameIndex = 0;
+
+          function showProgress() {
+            if (frameIndex < progressFrames.length) {
+              safeWrite(progressFrames[frameIndex++]);
+              setTimeout(showProgress, 400);
+            } else {
+              Object.entries(network).forEach(([ip, data]) => {
+                const status = data.cracked ? "open" : "filtered";
+                safeWrite( - ${ip} (status: ${status}));
+              });
+              prompt();
+            }
+          }
+
+          safeWrite("Scanning local network...");
+          setTimeout(showProgress, 600);
+          return;
 
       case "crack":
         if (!argStr || !network[argStr]) {
