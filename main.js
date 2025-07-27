@@ -1,5 +1,5 @@
 // === SILOCRATE TERMINAL GAME ===
-// Full version with smoother progressive scan bar
+// Full version with rainbow progress scan bar and fixed logic
 
 const bootLines = [
   "Initializing network stack...",
@@ -98,7 +98,7 @@ function initTerminal() {
       unlocked: false,
       files: {
         "flag.txt": "Encrypted content - please decrypt with correct password.",
-        "syslog": "Too many failed logins from your IP.",
+        syslog: "Too many failed logins from your IP.",
       },
     },
   };
@@ -172,28 +172,32 @@ function initTerminal() {
         if (!sessionConnected || !currentTarget) {
           safeWrite("Initiating network scan...");
         }
+
         safeWrite("Scanning local network...");
 
         let progress = 0;
-        const total = 20;
+        const total = 24;
 
         function updateBar() {
-  if (progress <= total) {
-    const rainbow = ["\x1b[31m", "\x1b[33m", "\x1b[32m", "\x1b[36m", "\x1b[34m", "\x1b[35m"];
-    const color = rainbow[progress % rainbow.length];
-    const bar = color + "[" + "=".repeat(progress) + " ".repeat(total - progress) + "]\x1b[0m";
-    safeWrite(bar);
-    progress++;
-    setTimeout(updateBar, 100);
-  } else {
-    safeWrite("Scan complete.\n");
-    Object.entries(network).forEach(([ip, data]) => {
-      const status = data.cracked ? "open" : "filtered";
-      safeWrite(` - ${ip} (status: ${status})`);
-    });
-    prompt();
-  }
-}
+          if (progress <= total) {
+            const rainbow = [
+              "\x1b[31m",
+              "\x1b[33m",
+              "\x1b[32m",
+              "\x1b[36m",
+              "\x1b[34m",
+              "\x1b[35m",
+            ];
+            const color = rainbow[progress % rainbow.length];
+            const bar =
+              color +
+              "[" +
+              "=".repeat(progress) +
+              " ".repeat(total - progress) +
+              "]\x1b[0m";
+            term.write("\r\n" + bar);
+            progress++;
+            setTimeout(updateBar, 80);
           } else {
             safeWrite("Scan complete.\n");
             Object.entries(network).forEach(([ip, data]) => {
@@ -204,13 +208,10 @@ function initTerminal() {
           }
         }
 
-        setTimeout(updateBar, 400);
+        setTimeout(updateBar, 300);
         return;
       }
-
-      // all other command cases remain as already updated
-
-      // ... (help, disconnect, ls, ls -a, cat, decrypt, claimprize, etc.)
+      // all other commands continue...
     }
   }
 
