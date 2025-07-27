@@ -19,8 +19,10 @@ main {
 }
 
 .ascii-container {
-    width: 100%;
+    display: flex;
+    justify-content: center;
     overflow-x: auto;
+    padding: 0 1rem;
 }
 
 .ascii {
@@ -33,11 +35,8 @@ main {
         0 0 10px #ff77ff,
         0 0 20px #7700ff;
     white-space: pre;
-    overflow-x: auto;
-    max-width: 100%;
     padding: 0.5rem;
-    margin: 0 auto 1.5rem auto;
-    display: block;
+    text-align: left;
 }
 
 .tagline {
