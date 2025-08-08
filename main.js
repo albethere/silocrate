@@ -52,12 +52,31 @@ function initTerminal() {
     },
   });
   term.open(document.getElementById("terminal-container"));
+  // Expose the SAME instance for any helpers that look on window
+  window.term = term;
+
+  // --- safeWrite: always print to xterm (not the browser console) ---
+  function safeWrite(s = "") {
+    try {
+      term.writeln(String(s)); // CRLF
+    } catch (e) {
+      console.log(String(s));
+      console.error("[safeWrite error]", e);
+    }
+  }
+  window.safeWrite = window.safeWrite || safeWrite; // optional global alias
+
+  // --- Safe reprompt wrapper (never throws) ---
+  window.__repromptSafely = function () {
+    try { if (typeof prompt === "function") return prompt(); } catch (e) {
+      console.error("[prompt threw]", e);
+    }
+    try { term.write("\r\n> "); } catch {}
+  };
 
   const banner = [
     "Welcome to SILOCRATE.",
     "Follow the white rabbit...",
-    "",
-    "Type 'help' for available commands.",
   ];
   banner.forEach((line) => term.writeln(line));
   prompt();
@@ -67,6 +86,7 @@ function initTerminal() {
   let currentTarget = null;
   let gameWon = false;
   let prizeClaimed = false;
+
 
   const commandHistory = [];
   let historyIndex = -1;
@@ -198,40 +218,23 @@ function initTerminal() {
         term.writeln("Disconnected from host.");
         break;
 
-      case "scan":
-        safeWrite("Initiating network scan...");
+      case "scan": {
+        safeWrite("Scanning local network...");
+        setTimeout(() => {
+          safeWrite("Scan complete.");
+          safeWrite(" - 10.13.37.42 (status: open)");
+          safeWrite(" - 10.13.37.99 (status: filtered)");
+          safeWrite(" - 172.16.0.1 (status: filtered)");
+          prompt();
+        }, 2000); // 2 seconds
+        break;
+      }
 
-        const progressFrames = [
-          "[==                  ] 10%",
-          "[====                ] 20%",
-          "[======              ] 30%",
-          "[========            ] 40%",
-          "[==========          ] 50%",
-          "[============        ] 60%",
-          "[==============      ] 70%",
-          "[================    ] 80%",
-          "[==================  ] 90%",
-          "[====================] 100%",
-          "Scan complete.\n",
-        ];
-
-        let frameIndex = 0;
-
-        function showProgress() {
-          if (frameIndex < progressFrames.length) {
-            safeWrite(progressFrames[frameIndex++]);
-            setTimeout(showProgress, 1000);
-          } else {
-            Object.entries(network).forEach(([ip, data]) => {
-              const status = data.cracked ? "open" : "filtered";
-              safeWrite(` - ${ip} (status: ${status})`);
-            });
-            prompt();
-          }
-        }
-
-        setTimeout(showProgress, 600);
-        return;
+      case "ping": {
+        safeWrite("pong");
+        __repromptSafely();
+        break;
+      }
 
       case "crack":
         if (!argStr || !network[argStr]) {
