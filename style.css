@@ -1,143 +1,116 @@
-/* === General Reset & Layout === */
-html,
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #0a0a0a;
-    color: #f7f7f7;
-    font-family: Menlo, Monaco, "Courier New", monospace;
+/* === CSS Variables / Design Tokens === */
+:root {
+  --bg: #0a0a0a;
+  --fg: #f7f7f7;
+  --accent-pink: #ff77ff;
+  --accent-cyan: #77ffff;
+  --accent-green: #00ffaa;
+  --accent-purple: #cc00cc;
+  --border: #222;
+  --terminal-width: min(900px, 100%);
+  --glow-pink: 0 0 5px #ff77ff, 0 0 10px #ff44ff, 0 0 20px #cc00cc;
+  --glow-cyan: 0 0 5px #77ffff, 0 0 10px #33ffee;
+  --glow-green: 0 0 20px #00ffaa55;
+  --font-mono: Menlo, Monaco, "Courier New", monospace;
 }
 
-/* === Main Content Section === */
+/* === Reset === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+}
+
+/* === Layout === */
 main {
-    text-align: center;
-    padding: 1rem;
-    width: 100%;
-    z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem 4rem;
+  width: 100%;
 }
 
+/* === ASCII Logo === */
 .ascii-container {
-    display: flex;
-    justify-content: center;
-    overflow-x: auto;
-    padding: 0 1rem;
-    white-space: pre;
-    font-size: 1.1rem;
-    color: #ff77ff;
-    text-shadow:
-        0 0 5px #ff77ff,
-        0 0 10px #ff44ff,
-        0 0 20px #cc00cc;
-    animation: glowFade 3s ease-in-out infinite alternate;
+  overflow-x: auto;
+  padding: 0.5rem 1rem;
+  white-space: pre;
+  font-size: clamp(0.6rem, 2vw, 1.1rem);
+  color: var(--accent-pink);
+  text-shadow: var(--glow-pink);
+  animation: glowFade 3s ease-in-out infinite alternate;
+  max-width: 100%;
 }
+
+.ascii { display: block; }
 
 @keyframes glowFade {
-    from {
-        text-shadow:
-            0 0 5px #ff77ff,
-            0 0 10px #ff44ff,
-            0 0 20px #cc00cc;
-    }
-    to {
-        text-shadow:
-            0 0 2px #ff99ff,
-            0 0 5px #ff66ff,
-            0 0 10px #990099;
-    }
+  from { text-shadow: var(--glow-pink); }
+  to   { text-shadow: 0 0 2px #ff99ff, 0 0 5px #ff66ff, 0 0 10px #990099; }
 }
 
+/* === Tagline === */
 .tagline {
-    font-size: 1.2em;
-    color: #77ffff;
-    text-shadow:
-        0 0 5px #77ffff,
-        0 0 10px #33ffee;
-    margin-bottom: 1rem;
+  font-size: 1.2em;
+  color: var(--accent-cyan);
+  text-shadow: var(--glow-cyan);
+  margin: 0.75rem 0;
+  text-align: center;
 }
 
+/* === Blurb === */
 .blurb {
-    font-size: 1em;
-    max-width: 600px;
-    margin: 0 auto;
-    color: #cccccc;
-    line-height: 1.5;
-    padding: 0 1rem;
+  font-size: 1em;
+  max-width: 600px;
+  color: #cccccc;
+  line-height: 1.6;
+  padding: 0 1rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
-/* === Boot Animation === */
+/* === Boot Sequence === */
 .boot-sequence {
-    font-family: monospace;
-    font-size: 1rem;
-    line-height: 1.4;
-    color: #00ffaa;
-    padding: 1rem;
-    white-space: pre-wrap;
-    animation: typeboot 3s steps(60, end) forwards;
-    overflow: hidden;
-    border-right: 0.15em solid #00ffaa;
-    text-align: left;
-    max-width: 900px;
-    margin: 2rem auto;
-    background-color: #0a0a0a;
-    border-radius: 8px;
-    border: 1px solid #222;
-    box-shadow: 0 0 20px #00ffaa55;
-    box-sizing: border-box;
-}
-
-@keyframes typeboot {
-    from {
-        width: 0;
-    }
-    to {
-        width: 100%;
-    }
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--accent-green);
+  padding: 1.25rem;
+  white-space: pre-wrap;
+  text-align: left;
+  width: var(--terminal-width);
+  margin: 0 auto;
+  background-color: var(--bg);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: var(--glow-green);
 }
 
 /* === Terminal Container === */
 #terminal-container {
-    text-align: left;
-    width: 100%;
-    max-width: 900px;
-    margin: 2rem auto 4rem auto;
-    background-color: #0a0a0a;
-    display: none;
-    overflow-y: auto;
-    overflow-x: auto;
-    padding: 0;
-    box-shadow: 0 0 20px #00ffaa55;
-    border: 1px solid #222;
-    border-radius: 8px;
-    box-sizing: border-box;
+  text-align: left;
+  width: var(--terminal-width);
+  margin: 1rem auto 0;
+  background-color: #0d0d0d;
+  display: none;
+  box-shadow: var(--glow-green);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  /* let xterm control height */
+  padding: 4px;
 }
 
-/* === XTerm.js Styling === */
-.xterm {
-    width: 100%;
-    padding: 0;
-    background-color: #0a0a0a !important;
-    box-sizing: border-box;
-}
+/* === XTerm.js Overrides === */
+.xterm-viewport { scrollbar-width: thin; scrollbar-color: #333 transparent; }
+.xterm-viewport::-webkit-scrollbar { width: 6px; }
+.xterm-viewport::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
 
-.xterm .xterm-viewport {
-    scrollbar-width: none;
-}
-
-.xterm .xterm-cursor-block {
-    background-color: #00ffff !important;
-    animation: blink 1.2s step-end infinite;
-}
-
-.xterm .xterm-selection {
-    background: rgba(255, 20, 147, 0.5);
-}
-
-@keyframes blink {
-    0%,
-    100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0;
-    }
+/* === Responsive === */
+@media (max-width: 600px) {
+  .ascii-container { font-size: 0.48rem; }
+  .tagline { font-size: 1em; }
 }

@@ -1,47 +1,52 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>SILOCRATE</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <meta charset="UTF-8" />
+    <title>SILOCRATE — Follow the White Rabbit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SILOCRATE — boiled tongues, jellied eels, and spam detection. A hacker-flavoured interactive terminal experience." />
+    <meta name="robots" content="index, follow" />
 
-        <!-- xterm.js -->
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css"
-        />
-        <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.min.js"></script>
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="SILOCRATE" />
+    <meta property="og:description" content="Boiled tongues, jellied eels, and spam detection. No sender left unscrubbed." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://silocrate.com/" />
 
-        <!-- Your CSS -->
-        <link rel="stylesheet" href="style.css" />
-    </head>
-    <body>
-        <main>
-            <div class="ascii-container">
-                <pre class="ascii">
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥</text></svg>" />
+
+    <!-- xterm.js v5 (pinned) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <div class="ascii-container">
+        <pre class="ascii">
  ____ ___ _     ___   ____ ____      _  _____ _____
 / ___|_ _| |   / _ \ / ___|  _ \    / \|_   _| ____|
 \___ \| || |  | | | | |   | |_) |  / _ \ | | |  _|
- ___) | || |__| |_| | |___|  _ <  / ___ \| | | |___
-|____/___|_____\___/ \____|_| \_\/_/   \_\_| |_____|
-      </pre
-                >
-            </div>
+ ___) | || |__| |_| | |___|  _ < / ___ \| | | |___
+|____/___|_____\___/ \____|_| \_/_/   \_\_| |_____|
+      </pre>
+      </div>
 
-            <div class="tagline">
-                boiled tongues, jellied eels, and spam detection
-            </div>
+      <div class="tagline">boiled tongues, jellied eels, and spam detection</div>
 
-            <p class="blurb">
-                In the grand tradition of salted meats and dubious pies,
-                <strong>SILOCRATE</strong> serves addresses hot and disposable.
-                No crust left unburnt. No sender left unscrubbed.
-            </p>
+      <p class="blurb">
+        In the grand tradition of salted meats and dubious pies,
+        <strong>SILOCRATE</strong> serves addresses hot and disposable.
+        No crust left unburnt. No sender left unscrubbed.
+      </p>
 
-            <div id="boot-sequence" class="boot-sequence"></div>
-            <div id="terminal-container"></div>
-        </main>
+      <div id="boot-sequence" class="boot-sequence"></div>
+      <div id="terminal-container"></div>
+    </main>
 
-        <script src="main.js" defer></script>
-    </body>
+    <script src="main.js" defer></script>
+  </body>
 </html>
