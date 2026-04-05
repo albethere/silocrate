@@ -2,51 +2,154 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>SILOCRATE — Follow the White Rabbit</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="SILOCRATE — boiled tongues, jellied eels, and spam detection. A hacker-flavoured interactive terminal experience." />
+    <title>Silocrate — Agent Fleet Platform</title>
+    <meta name="description" content="The open-source platform for deploying AI agent fleets on your own infrastructure." />
     <meta name="robots" content="index, follow" />
 
-    <!-- Open Graph / Social -->
-    <meta property="og:title" content="SILOCRATE" />
-    <meta property="og:description" content="Boiled tongues, jellied eels, and spam detection. No sender left unscrubbed." />
+    <!-- Open Graph -->
+    <meta property="og:title" content="Silocrate" />
+    <meta property="og:description" content="Run AI agent fleets on your own infrastructure." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://silocrate.com/" />
+    <meta property="og:url" content="https://silocrate.com" />
 
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▦</text></svg>" />
 
-    <!-- xterm.js v5 (pinned) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="assets/css/main.css" />
   </head>
   <body>
-    <main>
-      <div class="ascii-container">
-        <pre class="ascii">
- ____ ___ _     ___   ____ ____      _  _____ _____
-/ ___|_ _| |   / _ \ / ___|  _ \    / \|_   _| ____|
-\___ \| || |  | | | | |   | |_) |  / _ \ | | |  _|
- ___) | || |__| |_| | |___|  _ < / ___ \| | | |___
-|____/___|_____\___/ \____|_| \_/_/   \_\_| |_____|
-      </pre>
+
+    <!-- Nav -->
+    <nav>
+      <div class="container">
+        <a href="/" class="nav-logo">silo<span>crate</span></a>
+        <a href="#waitlist" class="btn btn-primary">Early Access</a>
       </div>
+    </nav>
 
-      <div class="tagline">boiled tongues, jellied eels, and spam detection</div>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <h1>Your infrastructure.<br>Your agents.<br><em>No silos.</em></h1>
+        <p>
+          Silocrate is the open-source platform for deploying AI agent fleets
+          on your own stack. Connect your tools, define your agents, coordinate their work.
+        </p>
+        <div class="hero-ctas">
+          <a href="#waitlist" class="btn btn-primary">Get Early Access</a>
+          <a href="https://github.com/albethere/silocrate" target="_blank" rel="noopener" class="btn btn-ghost">View on GitHub</a>
+        </div>
+      </div>
+    </section>
 
-      <p class="blurb">
-        In the grand tradition of salted meats and dubious pies,
-        <strong>SILOCRATE</strong> serves addresses hot and disposable.
-        No crust left unburnt. No sender left unscrubbed.
-      </p>
+    <!-- Problem strip -->
+    <section class="problems">
+      <div class="container">
+        <div class="problems-grid">
+          <div class="problem-item">
+            <span class="problem-icon">🔒</span>
+            <h3>Your tools don't talk to each other</h3>
+            <p>Every platform is its own island. Context dies at every handoff.</p>
+          </div>
+          <div class="problem-item">
+            <span class="problem-icon">🤖</span>
+            <h3>Your agents need a human in the loop</h3>
+            <p>Coordination is manual. Agents can't reason across domains on their own.</p>
+          </div>
+          <div class="problem-item">
+            <span class="problem-icon">🔧</span>
+            <h3>Your infra isn't self-managing</h3>
+            <p>Deployments, maintenance, ops — still waiting on a human to pull the trigger.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <div id="boot-sequence" class="boot-sequence"></div>
-      <div id="terminal-container"></div>
-    </main>
+    <!-- How it works -->
+    <section class="how">
+      <div class="container">
+        <span class="section-label">How it works</span>
+        <h2 class="section-title">Three steps to a working agent fleet</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">01 — Define</span>
+            <h3>Write agent specs</h3>
+            <p>Describe each agent's domain, responsibilities, and triggers in a simple manifest. Clear ownership, zero ambiguity.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">02 — Connect</span>
+            <h3>Plug in your tools</h3>
+            <p>GitHub, Slack, Jira, your own infra — connect what you already use. Silocrate speaks your stack's language.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">03 — Deploy</span>
+            <h3>Agents run on your infra</h3>
+            <p>Agents run on your own infrastructure and coordinate through a unified task layer. No vendor lock-in, ever.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <script src="main.js" defer></script>
+    <!-- Feature highlights -->
+    <section class="features">
+      <div class="container">
+        <span class="section-label">Features</span>
+        <h2 class="section-title">Built for real infrastructure</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <span class="feature-icon">🏗️</span>
+            <h3>Infrastructure-native</h3>
+            <p>Runs on your stack. Docker Compose today, Kubernetes tomorrow. You own the runtime.</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🛣️</span>
+            <h3>Agent write domains</h3>
+            <p>Every agent owns its lane. No conflicting changes, no chaos, no agents stepping on each other.</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">📋</span>
+            <h3>Unified task layer</h3>
+            <p>One source of truth for all agent work, readable and writable by any agent or system in your fleet.</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🔓</span>
+            <h3>Self-hostable</h3>
+            <p>Open source core. Your data never leaves your infrastructure. Audit everything, fork anything.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Early access CTA -->
+    <section class="cta-section" id="waitlist">
+      <div class="container">
+        <h2>We're building in public.</h2>
+        <p>Get early access and help shape what Silocrate becomes.</p>
+        <form class="waitlist-form" id="waitlist-form" action="mailto:hello@silocrate.com" method="GET" enctype="text/plain">
+          <input type="email" name="email" placeholder="your@email.com" required autocomplete="email" />
+          <button type="submit" class="btn btn-primary">Join Waitlist</button>
+        </form>
+        <p class="fine-print">No spam. Just ship notes.</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <span class="footer-copy">&copy; 2025 Silocrate</span>
+        <div class="footer-links">
+          <a href="https://github.com/albethere/silocrate" target="_blank" rel="noopener">GitHub</a>
+          <button id="terminal-trigger" title=">_" aria-label="terminal">&gt;_</button>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/main.js" defer></script>
   </body>
 </html>
